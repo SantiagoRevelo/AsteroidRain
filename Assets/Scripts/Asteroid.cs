@@ -36,10 +36,9 @@ public class Asteroid : MonoBehaviour {
 			for (int i = 0; i < numChildsFromSuper; i++) {
 				GenerateNewAsteroid ();
 			}
+		} else {
+			GameManager.instance.AddScore(1);
 		}
-		// TODO: adds 1 point;
-
-		Debug.Log ("<color=green> Touched</color>");
 		Destroy (gameObject);
 	}
 
