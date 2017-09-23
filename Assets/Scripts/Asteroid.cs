@@ -12,12 +12,11 @@ public class Asteroid : MonoBehaviour {
 	public float speed;
 	public AsteroidType type;
 	public Vector3 direction;
-	public int numChildsFromSuper = 2;
+	public int ChildrenCountFromSuper = 2;
 
 	void Start () {
-		direction = HelperFunctions.GetRandomDirection (30f);
+		direction = HelperFunctions.GetRandomDirection (50f);
 		speed = Random.Range (1f, 3f);
-		type = AsteroidType.normal;
 	}
 
 	void Update () {
@@ -33,7 +32,7 @@ public class Asteroid : MonoBehaviour {
 
 	public void Hit() {
 		if (type == AsteroidType.super) {
-			for (int i = 0; i < numChildsFromSuper; i++) {
+			for (int i = 0; i < ChildrenCountFromSuper; i++) {
 				GenerateNewAsteroid ();
 			}
 		} else {
@@ -43,8 +42,16 @@ public class Asteroid : MonoBehaviour {
 	}
 
 	void GenerateNewAsteroid() {
-		GameObject newAsteroid = Instantiate (gameObject, transform.position, transform.rotation);
+		Vector2 newPosition = new Vector3 (Random.Range (transform.position.x - 1, transform.position.x + 1), transform.position.y);
+		GameObject newAsteroid = Instantiate (gameObject, newPosition, transform.rotation);
+		newAsteroid.transform.localScale = Vector3.one;
 		Asteroid asteroidComp = newAsteroid.GetComponent<Asteroid> ();
 		asteroidComp.SetAsteroidType (AsteroidType.normal);
+	}
+
+	void OnTriggerEnter2D (Collider2D col) {
+		if (col.tag == "wall")
+			Destroy (gameObject);
+		
 	}
 }

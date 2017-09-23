@@ -9,4 +9,13 @@ public static class HelperFunctions {
 		return result;
 	}
 
+	public static Vector2 GetRandomScreenPostion(float minX, float maxX, float minY, float maxY) {
+		return new Vector2 (Random.Range (Camera.main.ScreenToWorldPoint (new Vector2(minX,0)).x, Camera.main.ScreenToWorldPoint (new Vector2(maxX,0)).x),
+							Random.Range (Camera.main.ScreenToWorldPoint (new Vector2(0, minY)).y, Camera.main.ScreenToWorldPoint (new Vector2(0, maxY)).y));
+	}
+	/*
+	public static Vector2 GetRandomScreenPostion(float minX, float maxX, float minY, float maxY, Vector2 offset) {
+		return GetRandomScreenPostion (minX, maxX, minY, maxY) + offset;
+	}*/
+
 }
