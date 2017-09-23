@@ -3,7 +3,6 @@ using System.Collections;
 
 [RequireComponent(typeof(Animator))]
 public class UIScreen : MonoBehaviour {
-	public bool AlwaysActive;
 	public ScreenDefinitions screenDefinition;
 
 	private CanvasGroup _canvasGroup;
@@ -13,7 +12,7 @@ public class UIScreen : MonoBehaviour {
 
 	public delegate void Callback();
 	Callback callbackOnOpen;
-	Callback callbackOnClose;
+	//Callback callbackOnClose;
 
 	bool ScreenOpened;
 	bool ScreenClosed;
@@ -26,20 +25,18 @@ public class UIScreen : MonoBehaviour {
 		RectTransform rect = GetComponent<RectTransform>();
 		rect.offsetMax = rect.offsetMin = new Vector2(0, 0);
 		ScreenWrapper = transform.Find ("Content Wrapper").gameObject;
-		if (!AlwaysActive) ScreenWrapper.SetActive (false);
 	}
 		
 	public virtual void OpenWindow(Callback openCallback = null) {
 		callbackOnOpen = openCallback;
 
-		if (!AlwaysActive) 
-			ScreenWrapper.SetActive (true);
+		ScreenWrapper.SetActive (true);
 		
 		IsOpen = true;
 	}
 
 	public virtual void CloseWindow(Callback closeCallback = null) {
-		callbackOnClose = closeCallback;
+		//callbackOnClose = closeCallback;
 
 		IsOpen = false;
 		_canvasGroup.blocksRaycasts = false;
@@ -89,12 +86,9 @@ public class UIScreen : MonoBehaviour {
 	}
 
 	void OnEndAnimationClose() {
-		if (!AlwaysActive)
-			ScreenWrapper.SetActive (false);
-
-		if (callbackOnClose != null) 
+		/*if (callbackOnClose != null) 
 			callbackOnClose();
-		
+		*/
 		ScreenClosed = true;
 	}
 }

@@ -3,7 +3,6 @@ using System.Collections;
 using System.Collections.Generic;
 using System;
 
-
 public enum ScreenDefinitions
 {
 	NONE,
@@ -34,9 +33,7 @@ public class ScreenManager : MonoBehaviour {
 		}
 
 		Instance = this;
-
 		DontDestroyOnLoad(gameObject);
-
 		screens = new List<UIScreen> ();
 		FindScreens ();
 	}
@@ -75,13 +72,6 @@ public class ScreenManager : MonoBehaviour {
 		if (currentGUIScreen != null) {
 			currentGUIScreen.OpenWindow(theCallback);
 		}
-		#if UNITY_EDITOR
-		else {
-			Debug.LogError("[CanvasManager in " + name +"]: La guiScreen es null. Quizás no has establecido la primera desde el inspector.");
-		}
-		#endif
-
-		//StartCoroutine (AnimationEndProcess ());
 	}
 
 	public void HideScreen() {
@@ -89,16 +79,4 @@ public class ScreenManager : MonoBehaviour {
 			currentGUIScreen.CloseWindow();
 		}
 	}
-	/*
-	IEnumerator AnimationEndProcess() {
-		while (currentGUIScreen.Animator.IsInTransition(0))
-			yield return null;
-
-		if (OnScreenChange != null)
-			OnScreenChange (currentGUIScreen.screenDefinition);
-		
-		//if (resultCallback != null) 
-		//	resultCallback();
-	}
-	*/
 }

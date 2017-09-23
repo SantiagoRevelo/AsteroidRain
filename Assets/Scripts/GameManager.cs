@@ -47,9 +47,11 @@ public class GameManager : MonoBehaviour {
 			switch (newGameState) {
 			case GameState.MainMenu:
 				ScreenManager.Instance.ShowScreen (ScreenDefinitions.MAIN_MENU);
+				AudioMaster.instance.PlayMusic (SoundDefinitions.THEME_MAINMENU);
 				break;
 			case GameState.Playing:
 				ScreenManager.Instance.ShowScreen (ScreenDefinitions.GAMEPLAY, StartGameplay);
+				AudioMaster.instance.PlayMusic (SoundDefinitions.THEME_GAMEPLAY);
 				break;
 			case GameState.GameOver:
 				ScreenManager.Instance.ShowScreen (ScreenDefinitions.GAME_OVER);
@@ -109,15 +111,20 @@ public class GameManager : MonoBehaviour {
 		bool generateSuperAsteroid;
 		while (currentTime < GAMEPLAY_DURATION) {
 			//TODO: can spawn ?? -> Define spawn rules;
-			for (int i = 0; i < Random.Range (1, 5); i++) {
-				generateSuperAsteroid = Random.Range (0, 50) <= 1;
+			for (int i = 0; i < Random.Range (1, 6); i++) {
+				generateSuperAsteroid = Random.Range (0, 20) <= 1;
 				spawner.SpawnAsteroid (generateSuperAsteroid ? AsteroidType.super : AsteroidType.normal);
 			}
 			currentTime++;
 			gameTimer.SetCurrentTime (currentTime);
 
+			if (GAMEPLAY_DURATION - currentTime <= 5) {
+				AudioMaster.instance.Play (SoundDefinitions.CLOCK_TICK);
+			}
+
 			yield return new WaitForSeconds (1f);
 		}
+		AudioMaster.instance.Play (SoundDefinitions.GAME_OVER);
 		FinishGameplay ();
 	}
 

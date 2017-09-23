@@ -39,6 +39,7 @@ public class Asteroid : MonoBehaviour {
 		} else {
 			GameManager.instance.AddScore(1);
 		}
+		AudioMaster.instance.Play (SoundDefinitions.TAP);
 		Instantiate (explosion, transform.position, Quaternion.identity);
 		Destroy (gameObject);
 	}
