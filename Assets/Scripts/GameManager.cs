@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using System;
 
 public enum GameState {
 	Initializing,
@@ -20,6 +21,10 @@ public class GameManager : MonoBehaviour {
 	public Text finalScore;
 	public int currentTime;
 	public GameTimer gameTimer;
+
+	public int lives;
+	public bool amIAlive;
+	public Action<int, bool> OnLoseLive;
 
 	public BoxCollider2D leftWall;
 	public BoxCollider2D rightWall;
@@ -84,6 +89,10 @@ public class GameManager : MonoBehaviour {
 		RelocateWalls ();
 		score = 0;
 		currentTime = 0;
+		amIAlive = true;
+		lives = 5;
+		if (OnLoseLive != null)
+			OnLoseLive (lives, false);
 		scoreText.text = score.ToString("0000");
 		gameTimer.ResetClock (GAMEPLAY_DURATION);
 		StartCoroutine (SpawnAsteroids());
@@ -109,10 +118,10 @@ public class GameManager : MonoBehaviour {
 
 	IEnumerator SpawnAsteroids() {
 		bool generateSuperAsteroid;
-		while (currentTime < GAMEPLAY_DURATION) {
+		while (currentTime < GAMEPLAY_DURATION && amIAlive) {
 			//TODO: can spawn ?? -> Define spawn rules;
-			for (int i = 0; i < Random.Range (1, 6); i++) {
-				generateSuperAsteroid = Random.Range (0, 20) <= 1;
+			for (int i = 0; i < UnityEngine.Random.Range (1, 4); i++) {
+				generateSuperAsteroid = UnityEngine.Random.Range (0, 20) <= 1;
 				spawner.SpawnAsteroid (generateSuperAsteroid ? AsteroidType.super : AsteroidType.normal);
 			}
 			currentTime++;
@@ -129,6 +138,20 @@ public class GameManager : MonoBehaviour {
 	}
 
 
+	public void LoseLive() {
+		lives--;
+
+		if (OnLoseLive != null)
+			OnLoseLive (lives, true);
+
+
+
+		if (lives <= 0) {
+			amIAlive = false;
+			FinishGameplay ();
+		}
+	}
+
 	/// <summary>
 	/// Relocates the collision walls that destroy miss asteroids.
 	/// </summary>
@@ -136,16 +159,16 @@ public class GameManager : MonoBehaviour {
 		rightWall.transform.position = Vector3.zero;
 		rightWall.transform.localScale = Vector3.one;
 		rightWall.size = new Vector2 (1f, Camera.main.ScreenToWorldPoint (new Vector3 (0f, Screen.height * 2f, 0f)).y);
-		rightWall.offset = new Vector2 (Camera.main.ScreenToWorldPoint (new Vector3 (Screen.width, 0f, 0f)).x + 4f, 0f);
+		rightWall.offset = new Vector2 (Camera.main.ScreenToWorldPoint (new Vector3 (Screen.width, 0f, 0f)).x + 1f, 0f);
 
 		bottomWall.transform.position = Vector3.zero;
 		bottomWall.transform.localScale = Vector3.one;
-		bottomWall.size = new Vector2 (Camera.main.ScreenToWorldPoint (new Vector3 (Screen.width * 2f, 0f, 0f)).x, 1f);
-		bottomWall.offset = new Vector2 (0f, Camera.main.ScreenToWorldPoint (new Vector3 (0f, 0f, 0f)).y - 4f);
+		bottomWall.size = new Vector2 (Camera.main.ScreenToWorldPoint (new Vector3 (Screen.width, 0f, 0f)).x *2, 1f);
+		bottomWall.offset = new Vector2 (0f, Camera.main.ScreenToWorldPoint (new Vector3 (0f, 0f, 0f)).y);
 
 		leftWall.transform.position = Vector3.zero;
 		leftWall.transform.localScale = Vector3.one;
 		leftWall.size = new Vector2 (1f, Camera.main.ScreenToWorldPoint (new Vector3 (0f, Screen.height * 2f, 0f)).y);
-		leftWall.offset = new Vector2 (Camera.main.ScreenToWorldPoint (new Vector3 (0f, 0f, 0f)).x - 4f, 0f); 
+		leftWall.offset = new Vector2 (Camera.main.ScreenToWorldPoint (new Vector3 (0f, 0f, 0f)).x - 1f, 0f); 
 	}
 }

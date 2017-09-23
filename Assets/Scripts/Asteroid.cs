@@ -55,6 +55,13 @@ public class Asteroid : MonoBehaviour {
 	void OnTriggerEnter2D (Collider2D col) {
 		if (col.tag == "wall")
 			Destroy (gameObject);
+
+		//Hitting downWall player loses a live;
+		if (col.name == "DownWall") {
+			GameManager.instance.LoseLive();
+			AudioMaster.instance.Play (SoundDefinitions.TAP);
+			Instantiate (explosion, transform.position, Quaternion.identity);
+		}		
 		
 	}
 }

@@ -52,6 +52,7 @@
      <Compile Include="Assets\Scripts\Audio Manager\AudioMaster.cs" />
      <Compile Include="Assets\Scripts\Audio Manager\GameSound.cs" />
      <Compile Include="Assets\Scripts\AutoDestroyParticleSystem.cs" />
+     <Compile Include="Assets\Scripts\FlashScreen.cs" />
      <Compile Include="Assets\Scripts\GameManager.cs" />
      <Compile Include="Assets\Scripts\GameTimer.cs" />
      <Compile Include="Assets\Scripts\HelperFunctions.cs" />
