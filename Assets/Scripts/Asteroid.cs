@@ -13,10 +13,11 @@ public class Asteroid : MonoBehaviour {
 	public AsteroidType type;
 	public Vector3 direction;
 	public int ChildrenCountFromSuper = 2;
+	public ParticleSystem explosion;
 
 	void Start () {
 		direction = HelperFunctions.GetRandomDirection (50f);
-		speed = Random.Range (1f, 3f);
+		speed = Random.Range (1f, 5f);
 	}
 
 	void Update () {
@@ -38,6 +39,7 @@ public class Asteroid : MonoBehaviour {
 		} else {
 			GameManager.instance.AddScore(1);
 		}
+		Instantiate (explosion, transform.position, Quaternion.identity);
 		Destroy (gameObject);
 	}
 

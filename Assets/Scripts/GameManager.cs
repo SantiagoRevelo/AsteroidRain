@@ -14,9 +14,10 @@ public class GameManager : MonoBehaviour {
 
 	public static GameManager instance = null;
 
-	public float GAMEPLAY_DURATION = 60f;
+	float GAMEPLAY_DURATION = 60f;
 	public int score;
 	public Text scoreText;
+	public Text finalScore;
 	public int currentTime;
 	public GameTimer gameTimer;
 
@@ -39,38 +40,63 @@ public class GameManager : MonoBehaviour {
 
 	void Start () {
 		SetGameState(GameState.MainMenu);
-		BeginGame ();
 	}
 
-	void Update () {
-	}
-
-
-	void SetGameState(GameState newGameState) {
-		switch (newGameState) {
-		case GameState.MainMenu:
-			break;
-		case GameState.Playing:
-			break;
-		case GameState.GameOver:
-			break;			
+	public void SetGameState(GameState newGameState) {
+		if (newGameState != currentGameState) {
+			switch (newGameState) {
+			case GameState.MainMenu:
+				ScreenManager.Instance.ShowScreen (ScreenDefinitions.MAIN_MENU);
+				break;
+			case GameState.Playing:
+				ScreenManager.Instance.ShowScreen (ScreenDefinitions.GAMEPLAY, StartGameplay);
+				break;
+			case GameState.GameOver:
+				ScreenManager.Instance.ShowScreen (ScreenDefinitions.GAME_OVER);
+				break;			
+			}
+			currentGameState = newGameState;
 		}
 	}
 
+	public void PlayTheGame(){
+		SetGameState (GameState.Playing);
+	}
 
+	public void ReplyGame() {
+		PlayTheGame ();
+	}
 
-	void BeginGame() {
+	public void BackToMainMenu() {
+		SetGameState (GameState.MainMenu);
+	}
+
+	public void ExitGame() {
+		Application.Quit ();
+	}
+
+	/// <summary>
+	/// Starts the gameplay.
+	/// </summary>
+	void StartGameplay() {
 		RelocateWalls ();
 		score = 0;
+		currentTime = 0;
 		scoreText.text = score.ToString("0000");
 		gameTimer.ResetClock (GAMEPLAY_DURATION);
 		StartCoroutine (SpawnAsteroids());
 	}
 
-	void FinishGame() {
+	/// <summary>
+	/// Finishs the gameplay.
+	/// </summary>
+	void FinishGameplay() {
+		finalScore.text = score.ToString ("0000");
 		GameObject[] asteroidsAlive = GameObject.FindGameObjectsWithTag ("asteroid");
 		foreach (GameObject asteroid in asteroidsAlive)
 			Destroy (asteroid);
+
+		SetGameState(GameState.GameOver);
 	}
 
 	public void AddScore(int points) {
@@ -78,20 +104,27 @@ public class GameManager : MonoBehaviour {
 		scoreText.text = score.ToString("0000");
 	}
 
+
 	IEnumerator SpawnAsteroids() {
 		bool generateSuperAsteroid;
 		while (currentTime < GAMEPLAY_DURATION) {
 			//TODO: can spawn ?? -> Define spawn rules;
-			generateSuperAsteroid = Random.Range (0, 10) <= 1;
-			spawner.SpawnAsteroid (generateSuperAsteroid ? AsteroidType.super : AsteroidType.normal);
+			for (int i = 0; i < Random.Range (1, 5); i++) {
+				generateSuperAsteroid = Random.Range (0, 50) <= 1;
+				spawner.SpawnAsteroid (generateSuperAsteroid ? AsteroidType.super : AsteroidType.normal);
+			}
 			currentTime++;
 			gameTimer.SetCurrentTime (currentTime);
 
 			yield return new WaitForSeconds (1f);
 		}
-		FinishGame ();
+		FinishGameplay ();
 	}
 
+
+	/// <summary>
+	/// Relocates the collision walls that destroy miss asteroids.
+	/// </summary>
 	void RelocateWalls() {
 		rightWall.transform.position = Vector3.zero;
 		rightWall.transform.localScale = Vector3.one;

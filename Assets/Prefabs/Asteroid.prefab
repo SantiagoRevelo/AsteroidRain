@@ -20,9 +20,9 @@ GameObject:
   m_Component:
   - component: {fileID: 4953679510899030}
   - component: {fileID: 212725106733745722}
-  - component: {fileID: 114321437654747028}
   - component: {fileID: 58016425426051382}
   - component: {fileID: 50376191119294132}
+  - component: {fileID: 114321437654747028}
   m_Layer: 0
   m_Name: Asteroid
   m_TagString: asteroid
@@ -93,6 +93,8 @@ MonoBehaviour:
   type: 0
   direction: {x: 0, y: 0, z: 0}
   ChildrenCountFromSuper: 2
+  explosion: {fileID: 198080916063693568, guid: 6682dac7f3d91464a83f002f745ed9e0,
+    type: 2}
 --- !u!212 &212725106733745722
 SpriteRenderer:
   m_ObjectHideFlags: 1
