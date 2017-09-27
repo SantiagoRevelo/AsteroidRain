@@ -57,6 +57,8 @@
      <Compile Include="Assets\Scripts\GameTimer.cs" />
      <Compile Include="Assets\Scripts\HelperFunctions.cs" />
      <Compile Include="Assets\Scripts\InputManager.cs" />
+     <Compile Include="Assets\Scripts\Particle Manager\ParticleManager.cs" />
+     <Compile Include="Assets\Scripts\Particle Manager\ParticlePool.cs" />
      <Compile Include="Assets\Scripts\ScreenManager\ScreenManager.cs" />
      <Compile Include="Assets\Scripts\ScreenManager\UIScreen.cs" />
  <Reference Include="UnityEngine.UI">

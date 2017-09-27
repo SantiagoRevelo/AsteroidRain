@@ -13,13 +13,21 @@ public class Asteroid : MonoBehaviour {
 	public AsteroidType type;
 	public Vector3 direction;
 	public int ChildrenCountFromSuper = 2;
-	public ParticleSystem explosion;
 	public bool isAlive;
+
+	private int hitsCount;
+	public int HitsCount {
+		get {return hitsCount;}
+		set { 
+			hitsCount = value;
+			isAlive = hitsCount > 0;
+		}
+	}
 
 	void Start () {
 		direction = HelperFunctions.GetRandomDirection (50f);
 		speed = Random.Range (1f, 5f);
-		isAlive = true;
+		HitsCount = 1;
 	}
 
 	void Update () {
@@ -34,21 +42,14 @@ public class Asteroid : MonoBehaviour {
 	}
 
 	public void Hit() {
-		if (type == AsteroidType.SUPER) {
-			for (int i = 0; i < ChildrenCountFromSuper; i++) {
-				GenerateNewAsteroid ();
-			}
-		} else {
-			GameManager.instance.AddScore(1);
-		}
 		AudioMaster.instance.Play (SoundDefinitions.TAP);
-		Instantiate (explosion, transform.position, Quaternion.identity);
-		isAlive = false;
+		ParticleManager.instance.playParticle(ParticleType.PARTICLE_DUST, transform.position);
+		HitsCount--;
 	}
 
-	void GenerateNewAsteroid() {
-		Vector2 newPosition = new Vector3 (Random.Range (transform.position.x - 1, transform.position.x + 1), transform.position.y);
-		GameObject newAsteroid = Instantiate (gameObject, newPosition, transform.rotation);
+	void GenerateNewAsteroid(Vector3 position) {
+		Vector2 newPosition = new Vector3 (Random.Range (position.x - 1, position.x + 1), position.y);
+		GameObject newAsteroid = Instantiate (gameObject, newPosition, Quaternion.identity);
 		newAsteroid.transform.localScale = Vector3.one;
 		Asteroid asteroidComp = newAsteroid.GetComponent<Asteroid> ();
 		asteroidComp.SetAsteroidType (AsteroidType.NORMAL);
@@ -62,7 +63,7 @@ public class Asteroid : MonoBehaviour {
 		if (col.name == "DownWall") {
 			GameManager.instance.LoseLive();
 			AudioMaster.instance.Play (SoundDefinitions.TAP);
-			Instantiate (explosion, transform.position, Quaternion.identity);
+			ParticleManager.instance.playParticle(ParticleType.PARTICLE_DUST, transform.position);
 		}		
 		
 	}

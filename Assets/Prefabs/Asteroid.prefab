@@ -24,7 +24,7 @@ GameObject:
   - component: {fileID: 50376191119294132}
   - component: {fileID: 114321437654747028}
   m_Layer: 0
-  m_Name: Asteroid
+  m_Name: asteroid
   m_TagString: asteroid
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -95,6 +95,7 @@ MonoBehaviour:
   ChildrenCountFromSuper: 2
   explosion: {fileID: 198080916063693568, guid: 6682dac7f3d91464a83f002f745ed9e0,
     type: 2}
+  isAlive: 0
 --- !u!212 &212725106733745722
 SpriteRenderer:
   m_ObjectHideFlags: 1

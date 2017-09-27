@@ -15,6 +15,7 @@ public class GameManager : MonoBehaviour {
 
 	public static GameManager instance = null;
 
+
 	private const float GAMEPLAY_DURATION = 60f;
 
 	public int score;
@@ -35,7 +36,7 @@ public class GameManager : MonoBehaviour {
 	public AsteroidSpawner spawner;
 
 	private GameState currentGameState;
-	private List<GameObject> asteroidsAlive = new List<GameObject> ();
+	private List<GameObject> asteroidsAliveList = new List<GameObject> ();
 
 	void Awake() {
 		if (instance == null) {
@@ -98,7 +99,8 @@ public class GameManager : MonoBehaviour {
 			OnLoseLive (lives, false);
 		scoreText.text = score.ToString("0000");
 		gameTimer.ResetClock (GAMEPLAY_DURATION);
-		asteroidsAlive.Clear ();
+		asteroidsAliveList.Clear ();
+		ParticleManager.instance.Init ();
 		StartCoroutine (SpawnAsteroids());
 	}
 
@@ -109,6 +111,7 @@ public class GameManager : MonoBehaviour {
 		finalScore.text = score.ToString ("0000");
 
 		DestroyAllAsteroids ();
+		ParticleManager.instance.Stop ();
 
 
 		if (OnFinishgame != null)
@@ -128,7 +131,7 @@ public class GameManager : MonoBehaviour {
 			//TODO: can spawn ?? -> Define spawn rules;
 			for (int i = 0; i < UnityEngine.Random.Range (1, 4); i++) {
 				generateSuperAsteroid = UnityEngine.Random.Range (0, 20) <= 1;
-				asteroidsAlive.Add(spawner.SpawnAsteroid (generateSuperAsteroid ? AsteroidType.SUPER : AsteroidType.NORMAL));
+				asteroidsAliveList.Add(spawner.SpawnAsteroid (generateSuperAsteroid ? AsteroidType.SUPER : AsteroidType.NORMAL));
 			}
 			currentTime++;
 			gameTimer.SetCurrentTime (currentTime);
@@ -145,21 +148,31 @@ public class GameManager : MonoBehaviour {
 
 	public void HitAsteroid(Asteroid asteroid) {
 		asteroid.Hit ();
+
 		if (!asteroid.isAlive) {
-			DestroyAsteroid (asteroid.gameObject);
+			if (asteroid.type == AsteroidType.SUPER) {
+				for (int i = 0; i < asteroid.ChildrenCountFromSuper; i++) {
+					GameObject childAsteroid = spawner.SpawnAsteroid (AsteroidType.NORMAL);
+					childAsteroid.transform.position = asteroid.transform.position;
+					asteroidsAliveList.Add (childAsteroid);
+				}
+			} else {
+				AddScore (1);
+			}
+			DestroyAsteroid (asteroid.gameObject);	
 		}
 	}
 
 	public void DestroyAsteroid(GameObject asteroid) {
-		asteroidsAlive.Remove (asteroid);
+		asteroidsAliveList.Remove (asteroid);
 		Destroy (asteroid);
 	}
 
 	void DestroyAllAsteroids() {
-		foreach (GameObject go in asteroidsAlive) {
+		foreach (GameObject go in asteroidsAliveList) {
 			Destroy (go);
 		}
-		asteroidsAlive.Clear ();
+		asteroidsAliveList.Clear ();
 	}
 
 	public void LoseLive() {
