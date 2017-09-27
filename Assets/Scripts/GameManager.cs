@@ -5,17 +5,18 @@ using UnityEngine.UI;
 using System;
 
 public enum GameState {
-	Initializing,
-	MainMenu,
-	Playing,
-	GameOver
+	INITIALIZING,
+	MAIN_MENU,
+	PLAYING,
+	GAME_OVER
 }
 
 public class GameManager : MonoBehaviour {
 
 	public static GameManager instance = null;
 
-	float GAMEPLAY_DURATION = 60f;
+	private const float GAMEPLAY_DURATION = 60f;
+
 	public int score;
 	public Text scoreText;
 	public Text finalScore;
@@ -25,6 +26,7 @@ public class GameManager : MonoBehaviour {
 	public int lives;
 	public bool amIAlive;
 	public Action<int, bool> OnLoseLive;
+	public Action OnFinishgame;
 
 	public BoxCollider2D leftWall;
 	public BoxCollider2D rightWall;
@@ -32,7 +34,8 @@ public class GameManager : MonoBehaviour {
 
 	public AsteroidSpawner spawner;
 
-	GameState currentGameState;
+	private GameState currentGameState;
+	private List<GameObject> asteroidsAlive = new List<GameObject> ();
 
 	void Awake() {
 		if (instance == null) {
@@ -44,21 +47,21 @@ public class GameManager : MonoBehaviour {
 	}
 
 	void Start () {
-		SetGameState(GameState.MainMenu);
+		SetGameState(GameState.MAIN_MENU);
 	}
 
 	public void SetGameState(GameState newGameState) {
 		if (newGameState != currentGameState) {
 			switch (newGameState) {
-			case GameState.MainMenu:
+			case GameState.MAIN_MENU:
 				ScreenManager.Instance.ShowScreen (ScreenDefinitions.MAIN_MENU);
 				AudioMaster.instance.PlayMusic (SoundDefinitions.THEME_MAINMENU);
 				break;
-			case GameState.Playing:
+			case GameState.PLAYING:
 				ScreenManager.Instance.ShowScreen (ScreenDefinitions.GAMEPLAY, StartGameplay);
 				AudioMaster.instance.PlayMusic (SoundDefinitions.THEME_GAMEPLAY);
 				break;
-			case GameState.GameOver:
+			case GameState.GAME_OVER:
 				ScreenManager.Instance.ShowScreen (ScreenDefinitions.GAME_OVER);
 				break;			
 			}
@@ -67,7 +70,7 @@ public class GameManager : MonoBehaviour {
 	}
 
 	public void PlayTheGame(){
-		SetGameState (GameState.Playing);
+		SetGameState (GameState.PLAYING);
 	}
 
 	public void ReplyGame() {
@@ -75,7 +78,7 @@ public class GameManager : MonoBehaviour {
 	}
 
 	public void BackToMainMenu() {
-		SetGameState (GameState.MainMenu);
+		SetGameState (GameState.MAIN_MENU);
 	}
 
 	public void ExitGame() {
@@ -95,6 +98,7 @@ public class GameManager : MonoBehaviour {
 			OnLoseLive (lives, false);
 		scoreText.text = score.ToString("0000");
 		gameTimer.ResetClock (GAMEPLAY_DURATION);
+		asteroidsAlive.Clear ();
 		StartCoroutine (SpawnAsteroids());
 	}
 
@@ -103,11 +107,14 @@ public class GameManager : MonoBehaviour {
 	/// </summary>
 	void FinishGameplay() {
 		finalScore.text = score.ToString ("0000");
-		GameObject[] asteroidsAlive = GameObject.FindGameObjectsWithTag ("asteroid");
-		foreach (GameObject asteroid in asteroidsAlive)
-			Destroy (asteroid);
 
-		SetGameState(GameState.GameOver);
+		DestroyAllAsteroids ();
+
+
+		if (OnFinishgame != null)
+			OnFinishgame ();
+
+		SetGameState(GameState.GAME_OVER);
 	}
 
 	public void AddScore(int points) {
@@ -115,14 +122,13 @@ public class GameManager : MonoBehaviour {
 		scoreText.text = score.ToString("0000");
 	}
 
-
 	IEnumerator SpawnAsteroids() {
 		bool generateSuperAsteroid;
 		while (currentTime < GAMEPLAY_DURATION && amIAlive) {
 			//TODO: can spawn ?? -> Define spawn rules;
 			for (int i = 0; i < UnityEngine.Random.Range (1, 4); i++) {
 				generateSuperAsteroid = UnityEngine.Random.Range (0, 20) <= 1;
-				spawner.SpawnAsteroid (generateSuperAsteroid ? AsteroidType.super : AsteroidType.normal);
+				asteroidsAlive.Add(spawner.SpawnAsteroid (generateSuperAsteroid ? AsteroidType.SUPER : AsteroidType.NORMAL));
 			}
 			currentTime++;
 			gameTimer.SetCurrentTime (currentTime);
@@ -137,15 +143,31 @@ public class GameManager : MonoBehaviour {
 		FinishGameplay ();
 	}
 
+	public void HitAsteroid(Asteroid asteroid) {
+		asteroid.Hit ();
+		if (!asteroid.isAlive) {
+			DestroyAsteroid (asteroid.gameObject);
+		}
+	}
+
+	public void DestroyAsteroid(GameObject asteroid) {
+		asteroidsAlive.Remove (asteroid);
+		Destroy (asteroid);
+	}
+
+	void DestroyAllAsteroids() {
+		foreach (GameObject go in asteroidsAlive) {
+			Destroy (go);
+		}
+		asteroidsAlive.Clear ();
+	}
 
 	public void LoseLive() {
 		lives--;
 
 		if (OnLoseLive != null)
 			OnLoseLive (lives, true);
-
-
-
+		
 		if (lives <= 0) {
 			amIAlive = false;
 			FinishGameplay ();

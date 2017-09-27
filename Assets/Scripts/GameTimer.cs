@@ -7,15 +7,10 @@ public class GameTimer : MonoBehaviour {
 
 	public Image tick;
 
-	[SerializeField]
-	float totalSeconds;
-	[SerializeField]
-	float currentSecond;
+	private float totalSeconds;
 
-
-	void Start () {
-		
-	}
+	[SerializeField]
+	private float currentSecond;
 
 	public void ResetClock(float total) {
 		totalSeconds = total;

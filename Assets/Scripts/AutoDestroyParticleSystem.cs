@@ -4,13 +4,21 @@ using UnityEngine;
 
 public class AutoDestroyParticleSystem : MonoBehaviour {
 
-	// Use this for initialization
-	void Start () {
-		
+	private ParticleSystem ps;
+
+	public void Start() 
+	{
+		ps = GetComponent<ParticleSystem>();
 	}
-	
-	// Update is called once per frame
-	void Update () {
-		
+
+	public void Update() 
+	{
+		if(ps)
+		{
+			if(!ps.IsAlive())
+			{
+				Destroy(gameObject);
+			}
+		}
 	}
 }

@@ -3,8 +3,8 @@ using System.Collections.Generic;
 using UnityEngine;
 
 public enum AsteroidType {
-	normal, 
-	super
+	NORMAL, 
+	SUPER
 }
 
 public class Asteroid : MonoBehaviour {
@@ -14,10 +14,12 @@ public class Asteroid : MonoBehaviour {
 	public Vector3 direction;
 	public int ChildrenCountFromSuper = 2;
 	public ParticleSystem explosion;
+	public bool isAlive;
 
 	void Start () {
 		direction = HelperFunctions.GetRandomDirection (50f);
 		speed = Random.Range (1f, 5f);
+		isAlive = true;
 	}
 
 	void Update () {
@@ -27,12 +29,12 @@ public class Asteroid : MonoBehaviour {
 
 	public void SetAsteroidType(AsteroidType astType) {
 		type = astType;
-		if (astType == AsteroidType.super)
+		if (astType == AsteroidType.SUPER)
 			transform.localScale = new Vector3 (2f, 2f, 2f);
 	}
 
 	public void Hit() {
-		if (type == AsteroidType.super) {
+		if (type == AsteroidType.SUPER) {
 			for (int i = 0; i < ChildrenCountFromSuper; i++) {
 				GenerateNewAsteroid ();
 			}
@@ -41,7 +43,7 @@ public class Asteroid : MonoBehaviour {
 		}
 		AudioMaster.instance.Play (SoundDefinitions.TAP);
 		Instantiate (explosion, transform.position, Quaternion.identity);
-		Destroy (gameObject);
+		isAlive = false;
 	}
 
 	void GenerateNewAsteroid() {
@@ -49,12 +51,12 @@ public class Asteroid : MonoBehaviour {
 		GameObject newAsteroid = Instantiate (gameObject, newPosition, transform.rotation);
 		newAsteroid.transform.localScale = Vector3.one;
 		Asteroid asteroidComp = newAsteroid.GetComponent<Asteroid> ();
-		asteroidComp.SetAsteroidType (AsteroidType.normal);
+		asteroidComp.SetAsteroidType (AsteroidType.NORMAL);
 	}
 
 	void OnTriggerEnter2D (Collider2D col) {
 		if (col.tag == "wall")
-			Destroy (gameObject);
+			GameManager.instance.DestroyAsteroid (gameObject);
 
 		//Hitting downWall player loses a live;
 		if (col.name == "DownWall") {

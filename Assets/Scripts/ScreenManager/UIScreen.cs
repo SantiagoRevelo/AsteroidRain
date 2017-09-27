@@ -5,8 +5,8 @@ using System.Collections;
 public class UIScreen : MonoBehaviour {
 	public ScreenDefinitions screenDefinition;
 
-	private CanvasGroup _canvasGroup;
-	protected Animator _animator;
+	private CanvasGroup canvasGroup;
+	protected Animator animator;
 
 	GameObject ScreenWrapper;
 
@@ -19,8 +19,8 @@ public class UIScreen : MonoBehaviour {
 
 	public virtual void Awake()
 	{
-		_animator = GetComponent<Animator>();
-		_canvasGroup = gameObject.GetComponentInChildren<CanvasGroup> ();
+		animator = GetComponent<Animator>();
+		canvasGroup = gameObject.GetComponentInChildren<CanvasGroup> ();
 		
 		RectTransform rect = GetComponent<RectTransform>();
 		rect.offsetMax = rect.offsetMin = new Vector2(0, 0);
@@ -36,11 +36,9 @@ public class UIScreen : MonoBehaviour {
 	}
 
 	public virtual void CloseWindow(Callback closeCallback = null) {
-		//callbackOnClose = closeCallback;
-
 		IsOpen = false;
-		_canvasGroup.blocksRaycasts = false;
-		_canvasGroup.interactable = false;
+		canvasGroup.blocksRaycasts = false;
+		canvasGroup.interactable = false;
 	}
 
 	public bool IsOpen
@@ -57,10 +55,10 @@ public class UIScreen : MonoBehaviour {
 
 	public Animator Animator {
 		get {
-			if (_animator == null) {
-				_animator = GetComponent<Animator>();
+			if (animator == null) {
+				animator = GetComponent<Animator>();
 			}
-			return _animator;
+			return animator;
 		}
 	}
 
@@ -70,13 +68,13 @@ public class UIScreen : MonoBehaviour {
 		}
 	}
 
-	void OnEndAnimationOpen() {
+	void OnEndAnimationOpen_Handle() {
 		if (callbackOnOpen != null) 
 			callbackOnOpen();
 
 		ScreenOpened = true;
-		_canvasGroup.blocksRaycasts = true;
-		_canvasGroup.interactable = true;
+		canvasGroup.blocksRaycasts = true;
+		canvasGroup.interactable = true;
 	}
 
 	public bool InCloseState {
@@ -85,10 +83,7 @@ public class UIScreen : MonoBehaviour {
 		}
 	}
 
-	void OnEndAnimationClose() {
-		/*if (callbackOnClose != null) 
-			callbackOnClose();
-		*/
+	void OnEndAnimationClose_Handle() {
 		ScreenClosed = true;
 	}
 }

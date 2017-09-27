@@ -20,7 +20,7 @@ public class InputManager : MonoBehaviour {
 	void EvaluateTap(Vector2 screenCoords) {
 		Asteroid asteroid = GetTouchedAsteroid (screenCoords);
 		if (asteroid != null) {
-			asteroid.Hit ();
+			GameManager.instance.HitAsteroid(asteroid);
 		}
 	}
 
