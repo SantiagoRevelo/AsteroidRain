@@ -2,87 +2,102 @@
 using System.Collections;
 
 [RequireComponent(typeof(Animator))]
-public class UIScreen : MonoBehaviour {
-	public ScreenDefinitions screenDefinition;
+public class UIScreen : MonoBehaviour
+{
+    public ScreenDefinitions screenDefinition;
 
-	private CanvasGroup canvasGroup;
-	protected Animator animator;
+    private CanvasGroup canvasGroup;
+    protected Animator animator;
 
-	GameObject ScreenWrapper;
+    GameObject ScreenWrapper;
 
-	public delegate void Callback();
-	Callback callbackOnOpen;
+    public delegate void Callback();
 
-	bool ScreenOpened;
-	bool ScreenClosed;
+    Callback callbackOnOpen;
 
-	public virtual void Awake()
-	{
-		animator = GetComponent<Animator>();
-		canvasGroup = gameObject.GetComponentInChildren<CanvasGroup> ();
+    bool ScreenOpened;
+    bool ScreenClosed;
+
+    public virtual void Awake()
+    {
+        animator = GetComponent<Animator>();
+        canvasGroup = gameObject.GetComponentInChildren<CanvasGroup>();
 		
-		RectTransform rect = GetComponent<RectTransform>();
-		rect.offsetMax = rect.offsetMin = new Vector2(0, 0);
-		ScreenWrapper = transform.Find ("Content Wrapper").gameObject;
-	}
+        RectTransform rect = GetComponent<RectTransform>();
+        rect.offsetMax = rect.offsetMin = new Vector2(0, 0);
+        ScreenWrapper = transform.Find("Content Wrapper").gameObject;
+    }
+
+    public virtual void OpenWindow(Callback openCallback = null)
+    {
+        callbackOnOpen = openCallback;
+
+        ScreenWrapper.SetActive(true);
 		
-	public virtual void OpenWindow(Callback openCallback = null) {
-		callbackOnOpen = openCallback;
+        IsOpen = true;
+    }
 
-		ScreenWrapper.SetActive (true);
-		
-		IsOpen = true;
-	}
+    public virtual void CloseWindow(Callback closeCallback = null)
+    {
+        IsOpen = false;
+        canvasGroup.blocksRaycasts = false;
+        canvasGroup.interactable = false;
+    }
 
-	public virtual void CloseWindow(Callback closeCallback = null) {
-		IsOpen = false;
-		canvasGroup.blocksRaycasts = false;
-		canvasGroup.interactable = false;
-	}
+    public bool IsOpen
+    {
+        get { return Animator.GetBool("IsOpen"); }
+        set
+        {
+            if (Animator != null)
+            {
+                Animator.SetBool("IsOpen", value);
+                ScreenOpened = false;
+                ScreenClosed = false;
+            }
+        }
+    }
 
-	public bool IsOpen
-	{
-		get { return Animator.GetBool("IsOpen"); }
-		set {
-			if (Animator != null) {
-				Animator.SetBool("IsOpen", value);
-				ScreenOpened = false;
-				ScreenClosed = false;
-			}
-		}
-	}
+    public Animator Animator
+    {
+        get
+        {
+            if (animator == null)
+            {
+                animator = GetComponent<Animator>();
+            }
+            return animator;
+        }
+    }
 
-	public Animator Animator {
-		get {
-			if (animator == null) {
-				animator = GetComponent<Animator>();
-			}
-			return animator;
-		}
-	}
+    public bool InOpenState
+    {
+        get
+        {
+            return ScreenOpened;
+        }
+    }
 
-	public bool InOpenState {
-		get {
-			return ScreenOpened;
-		}
-	}
+    void OnEndAnimationOpen_Handle()
+    {
+        if (callbackOnOpen != null)
+            callbackOnOpen();
 
-	void OnEndAnimationOpen_Handle() {
-		if (callbackOnOpen != null) 
-			callbackOnOpen();
+        ScreenOpened = true;
+        canvasGroup.blocksRaycasts = true;
+        canvasGroup.interactable = true;
+    }
 
-		ScreenOpened = true;
-		canvasGroup.blocksRaycasts = true;
-		canvasGroup.interactable = true;
-	}
+    public bool InCloseState
+    {
+        get
+        {
+            return ScreenClosed;
+        }
+    }
 
-	public bool InCloseState {
-		get {
-			return ScreenClosed;
-		}
-	}
-
-	void OnEndAnimationClose_Handle() {
-		ScreenClosed = true;
-	}
+    void OnEndAnimationClose_Handle()
+    {
+        ScreenClosed = true;
+    }
 }

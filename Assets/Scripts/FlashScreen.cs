@@ -2,32 +2,44 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class FlashScreen : MonoBehaviour {
+public class FlashScreen : MonoBehaviour
+{
 
-	List<GameObject> currentLivesList = new List<GameObject>();
-	public GameObject livePrefab;
-	public Transform livesContainer;
-	public Animator flashAnimator;
+    List<GameObject> currentLivesList = new List<GameObject>();
+    public GameObject livePrefab;
+    public Transform livesContainer;
+    public Animator flashAnimator;
+    int currentLives;
 
-	void Start () {
-		GameManager.instance.OnLoseLive += HandleOnChangeLivesCount;
-	}
+    void Start()
+    {
+        GameManager.instance.OnUpdatePlayerLives += HandleOnChangeLivesCount;
+    }
 
-	void HandleOnChangeLivesCount(int count, bool flash = false){
-		
-		foreach (GameObject go in currentLivesList) {
-			Destroy (go);
-		}
-		currentLivesList.Clear ();
-		if (count > 0) {
-			for (int i = 0; i < count; i++) {
-				GameObject newLive = Instantiate (livePrefab, livesContainer);
-				currentLivesList.Add (newLive);
-			}
+    void HandleOnChangeLivesCount(int count)
+    {
+        // If for some reason i don't have the needed lives to show then create the necessary
+        if (count > currentLivesList.Count)
+        {
+            int hearts = count - currentLivesList.Count;
+            for (int i = 0; i < hearts; i++)
+            {
+                GameObject newLive = Instantiate(livePrefab, livesContainer);
+                currentLivesList.Add(newLive);
+            }
+        }
 
-			if (flash) {
-				flashAnimator.SetTrigger ("hit");
-			}
-		}
-	}
+        // Only show the needed ones
+        for (int i = 0; i < currentLivesList.Count; i++)
+        {
+            currentLivesList[i].SetActive(i < count);
+        }
+
+        if (count < currentLives)
+        {
+            flashAnimator.SetTrigger("hit");
+        }
+
+        currentLives = count;
+    }
 }

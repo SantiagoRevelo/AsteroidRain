@@ -5,25 +5,26 @@ using System.Collections;
 [System.Serializable]
 public class GameSound
 {
-	[SerializeField]
-	public SoundDefinitions SoundDef;
+    [SerializeField]
+    public SoundDefinitions SoundDef;
 	
-	[SerializeField]
-	public float Volume = 1f;
+    [SerializeField]
+    public float Volume = 1f;
 	
-	[SerializeField]		
-	public AudioClip[] Audios;
+    [SerializeField]		
+    public AudioClip[] Audios;
 	
-	private AudioClip mSound;
-	public AudioClip TheSound
-	{
-		get { return mSound; }
-		set { mSound = value; }
-	}
+    private AudioClip mSound;
 
-	public void SetMainClip()
-	{
-		int i = Random.Range(0, Audios.Length);
-		TheSound = Audios[i];	
-	}
+    public AudioClip TheSound
+    {
+        get { return mSound; }
+        set { mSound = value; }
+    }
+
+    public void SetMainClip()
+    {
+        int i = Random.Range(0, Audios.Length);
+        TheSound = Audios[i];	
+    }
 }

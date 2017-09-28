@@ -2,18 +2,21 @@ using UnityEngine;
 using UnityEngine.UI;
 using System.Collections;
 
-[RequireComponent (typeof (Button))]
-public class AudioButton : MonoBehaviour {
+[RequireComponent(typeof(Button))]
+public class AudioButton : MonoBehaviour
+{
 	
-	public SoundDefinitions soundDefinition;
+    public SoundDefinitions soundDefinition;
 
-	Button parent;
-	void Awake() {
-		GetComponent<Button>().onClick.AddListener(OnClick);	
-	}
+    Button parent;
 
-	void OnClick()
-	{
-		AudioMaster.instance.Play(soundDefinition);			
-	}
+    void Awake()
+    {
+        GetComponent<Button>().onClick.AddListener(OnClick);	
+    }
+
+    void OnClick()
+    {
+        AudioMaster.instance.Play(soundDefinition);			
+    }
 }
