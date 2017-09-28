@@ -490,13 +490,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a98befb2c0a3c4ec38eb744021268493, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  GameSounds:
+  gameSoundList:
   - SoundDef: 1
-    Volume: 0.3
+    Volume: 1
     Audios:
     - {fileID: 8300000, guid: 2d3c26eaea78d420e83d9b7c96ecdb2b, type: 3}
   - SoundDef: 2
-    Volume: 0.3
+    Volume: 1
     Audios:
     - {fileID: 8300000, guid: c5e85ef900d1b48b282aba16f678d467, type: 3}
   - SoundDef: 3
@@ -526,8 +526,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1e780675f15e84dc0a773a052bfaff38, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  particlesCount: 5
   effects:
-  - {fileID: 198080916063693568, guid: 6682dac7f3d91464a83f002f745ed9e0, type: 2}
+  - {fileID: 198263925120526778, guid: 6682dac7f3d91464a83f002f745ed9e0, type: 2}
 --- !u!1 &92249399
 GameObject:
   m_ObjectHideFlags: 0
@@ -891,7 +892,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0.5}
   m_AnchorMax: {x: 1, y: 0.5}
-  m_AnchoredPosition: {x: 0, y: 99.99997}
+  m_AnchoredPosition: {x: 0, y: 100}
   m_SizeDelta: {x: -357, y: 298}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &344754775
@@ -1838,7 +1839,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 0, y: 99.99997}
+  m_AnchoredPosition: {x: 0, y: 100}
   m_SizeDelta: {x: 534, y: 150}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1408571485

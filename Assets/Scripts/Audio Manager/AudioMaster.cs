@@ -10,12 +10,19 @@ public enum SoundDefinitions
 	THEME_MAINMENU,
 	THEME_GAMEPLAY,
 	BUTTON,
-	TAP,
+	EXPLOSION,
 	CLOCK_TICK,
 	GAME_OVER
 }
 
 public class AudioMaster : MonoBehaviour {
+	
+	public static AudioMaster instance = null;
+
+	/// <summary>
+	/// Clip info.
+	/// Contains the data of a Playing sound.
+	/// </summary>
 	class ClipInfo
 	{
 		public AudioSource Source { get; set; }
@@ -24,12 +31,10 @@ public class AudioMaster : MonoBehaviour {
 		public SoundDefinitions Definition { get; set; }
 	}
 
-	public List<GameSound> GameSounds;		// GameSounds List
-	private List<ClipInfo> mActiveAudio;   	// Playing Sounds
-	private Transform mOriginOfTheSounds;   // Parent of all sounds
-	private SoundDefinitions mActiveMusic;	// Active Theme
-
-	public static AudioMaster instance = null;
+	public List<GameSound> gameSoundList;	// GameSounds List
+	private List<ClipInfo> activeAudio;   	// Playing Sounds
+	private Transform theSoundsParent;   	// Parent of all sounds
+	private SoundDefinitions activeMusic;	// Active Music Theme
 
 	void Awake()
 	{
@@ -39,83 +44,60 @@ public class AudioMaster : MonoBehaviour {
 		else if (instance != this) {
 			Destroy(gameObject);
 		}
-		mOriginOfTheSounds = transform;
+		theSoundsParent = transform;
 
-		mActiveAudio = new List<ClipInfo>();
-		mActiveMusic = SoundDefinitions.NONE;
-	}
-	
-	void Update() {
+		activeAudio = new List<ClipInfo>();
+		activeMusic = SoundDefinitions.NONE;
 	}
 
-	// Reproduce un sonido
-	public AudioSource Play(SoundDefinitions soundDef)
+	/// <summary>
+	/// Play the specified soundDefinition.
+	/// </summary>
+	/// <param name="soundDefinition">Sound definition.</param>
+	public AudioSource Play(SoundDefinitions soundDefinition)
 	{
 		//Create an empty game object
-		GameObject soundLoc = CreateSoundLocation("Sound_" + soundDef);
+		GameObject soundObj = CreateSoundObject(soundDefinition + "_sfx");
 		//Create the Audio source
-		AudioSource source = soundLoc != null ? soundLoc.AddComponent<AudioSource>() : null;
+		AudioSource source = soundObj != null ? soundObj.AddComponent<AudioSource>() : null;
 
 		if (source != null)
 		{
 			//Configure the GameSound
-			GameSound gs = GetTheSoundClip(soundDef);
+			GameSound gs = GetTheSoundClip(soundDefinition);
 			//Sets the main clip
 			gs.SetMainClip();
 
 			if (gs.TheSound != null) {
 				//Configure the AudioSource
-				SetSource(ref source, soundDef, gs.TheSound, gs.Volume);
+				SetSourceSettings(ref source, soundDefinition, gs.TheSound, gs.Volume);
 				if (source != null && source.clip != null)
 				{
 						//Play it
 					source.Play();
 					//Drstroy it when stop
-					Destroy(soundLoc, gs.TheSound.length);
+					Destroy(soundObj, gs.TheSound.length);
 				}
 				//Set the source as active
-				if (mActiveAudio != null && GameSounds != null && GameSounds.Count >= (int)soundDef)
+				if (activeAudio != null && gameSoundList != null && gameSoundList.Count >= (int)soundDefinition)
 				{
-					mActiveAudio.Add(new ClipInfo { Source = source, OriginalVolume = gs.Volume, currentVolume = gs.Volume, Definition = soundDef });
+					activeAudio.Add(new ClipInfo { Source = source, OriginalVolume = gs.Volume, currentVolume = gs.Volume, Definition = soundDefinition });
 				}
 			}
 			#if UNITY_EDITOR
 			else {
-				Debug.Log(string.Format("No hay un Clip de audio asignado al GameSound definido como: {0}.\n" +
-					"Revisa el listado de definiciones en el prefab '", soundDef));
+				Debug.Log(string.Format("The GameSound {0}.\n has not set any audio clip.", soundDefinition));
 			}
 			#endif
 		}
 		return source;
 	}
-		
+
 	/// <summary>
-	/// Play the specified soundDef and ignoreIfExist.
+	/// Play a loop music.
 	/// </summary>
-	/// <param name='soundDef'>
-	/// Sound def.
-	/// </param>
-	/// <param name='ignoreIfExist'>
-	/// ignoreIfExist = 'True', add a new soundañade with this definition
-	/// ignoreIfExist = 'False', first stop a sound with this definition befor start playing a new one.
-	/// This funciton avoid playing many equal sounds at a time.
-	/// </param>
-	public AudioSource Play(SoundDefinitions soundDef, bool ignoreIfExist)
-	{
-		if(!ignoreIfExist)
-			StopSound(soundDef);		
-		
-		return Play(soundDef);
-	}
-
-	void StopMusic() {
-		if (mActiveMusic != SoundDefinitions.NONE) {
-			StopSound (mActiveMusic);
-			mActiveMusic = SoundDefinitions.NONE;
-		}
-	}
-
-	// Play loop theme music
+	/// <returns>The music.</returns>
+	/// <param name="soundDef">Sound def.</param>
 	public AudioSource PlayMusic(SoundDefinitions soundDef) 
 	{
 		// Only 1 music at a time
@@ -124,29 +106,33 @@ public class AudioMaster : MonoBehaviour {
 		if( IsPlayingSoundDefinition(soundDef))
 			StopSound( soundDef );
 		
-		GameObject soundLoc = CreateSoundLocation("Loop_" + soundDef.ToString());
-		//Create the source
-		AudioSource source = soundLoc.AddComponent<AudioSource>();
+		GameObject soundObj = CreateSoundObject(soundDef.ToString() + "_music");
+
+		//Create the audio source component
+		AudioSource source = soundObj.AddComponent<AudioSource>();
 
 		
 		GameSound gs = GetTheSoundClip(soundDef);
 		gs.SetMainClip();
-		SetSource(ref source, soundDef, gs.TheSound , gs.Volume);
+		SetSourceSettings(ref source, soundDef, gs.TheSound , gs.Volume);
 		source.loop = true;
 		source.Play();
 		
 		//Set the source as active
-		mActiveAudio.Add(new ClipInfo{Source = source, OriginalVolume = gs.Volume, currentVolume = gs.Volume, Definition = soundDef});
-		mActiveMusic = soundDef;
+		activeAudio.Add(new ClipInfo{Source = source, OriginalVolume = gs.Volume, currentVolume = gs.Volume, Definition = soundDef});
+		activeMusic = soundDef;
 		return source;
 	}
 	
-	// Stops anddestroy Souds
+	/// <summary>
+	/// Stops the sound.
+	/// </summary>
+	/// <param name="defToStop">SoundDefinition to stop.</param>
 	public void StopSound(SoundDefinitions defToStop) 
 	{
 		GameObject sound = null;
 		ClipInfo ciToRemove = null;
-		foreach ( ClipInfo ci in mActiveAudio)
+		foreach ( ClipInfo ci in activeAudio)
 		{
 			if (ci.Definition == defToStop) {
 				sound = ci.Source.gameObject;
@@ -155,17 +141,29 @@ public class AudioMaster : MonoBehaviour {
 		}
 
 		if (ciToRemove != null)
-			mActiveAudio.Remove (ciToRemove);
+			activeAudio.Remove (ciToRemove);
 		
 		if( sound != null)	
 			Destroy(sound);
 	}
-	
-	// Para y elimina todos los FX y Musicas que haya en la lista de sonidos activos
-	public void StopAll() 
+
+	/// <summary>
+	/// Stops the current playing loop music.
+	/// </summary>
+	void StopMusic() {
+		if (activeMusic != SoundDefinitions.NONE) {
+			StopSound (activeMusic);
+			activeMusic = SoundDefinitions.NONE;
+		}
+	}
+
+	/// <summary>
+	/// Stops all sfx and music loops.
+	/// </summary>
+	public void StopAllPlayingSounds() 
 	{
 		try { 
-			foreach (ClipInfo ci in mActiveAudio) {
+			foreach (ClipInfo ci in activeAudio) {
 				if(ci.Source != null)
 					Destroy(ci.Source.gameObject);
 			}
@@ -174,35 +172,46 @@ public class AudioMaster : MonoBehaviour {
 			Debug.LogErrorFormat (e.Message, e.Data);
 		} 
 	}
-	
-	// Crea un Objeto vacío y lo posiciona en la escena y establece su padre en la Jerarquía
-	private GameObject CreateSoundLocation(string name)
+
+	/// <summary>
+	/// Creates the sound object.
+	/// </summary>
+	/// <returns>The sound object.</returns>
+	/// <param name="name">Name.</param>
+	private GameObject CreateSoundObject(string name)
 	{
 		//Create an empty game object
 		GameObject soundLoc = new GameObject(name);
-		if(mOriginOfTheSounds.position != Vector3.zero)
-			soundLoc.transform.position = mOriginOfTheSounds.position;
+		if(theSoundsParent.position != Vector3.zero)
+			soundLoc.transform.position = theSoundsParent.position;
 		else
 			soundLoc.transform.position = transform.position;
 		
-		soundLoc.transform.parent = mOriginOfTheSounds;
+		soundLoc.transform.parent = theSoundsParent;
 		return soundLoc;
 	}		
 
-	
-	//Busca y retorna un GameSound y establece cual es el clip a reproducir
-	//(Atencion: En principio no puede usar una misma definición para varios sonidos. El algoritmo devuelve el primero que encuentre)
+	/// <summary>
+	/// Gets the sound clip.
+	/// </summary>
+	/// <returns>The the sound clip. Attention: Can't use more than once same sound definition because only the first defined will be return;</returns>
+	/// <param name="soundDef">Sound definition</param>
 	GameSound GetTheSoundClip(SoundDefinitions soundDef)
 	{
-		// Seleccionamos el clip definido como el parametro soundDef 
-		GameSound gs = (from g in GameSounds
+		GameSound gs = (from g in gameSoundList
 						where g.SoundDef == soundDef
 				select g).FirstOrDefault();
 		return gs;		
 	}
 	
-	// Establece los parametros del AudioSource
-	private void SetSource(ref AudioSource source, SoundDefinitions soundDef, AudioClip clip, float volume) 
+	/// <summary>
+	/// Sets the source.
+	/// </summary>
+	/// <param name="source">Source.</param>
+	/// <param name="soundDef">Sound Definition</param>
+	/// <param name="clip">Clip</param>
+	/// <param name="volume">Volume</param>
+	private void SetSourceSettings(ref AudioSource source, SoundDefinitions soundDef, AudioClip clip, float volume) 
 	{
 		source.rolloffMode = AudioRolloffMode.Logarithmic;
 		source.dopplerLevel = 0.2f;
@@ -212,11 +221,16 @@ public class AudioMaster : MonoBehaviour {
 		source.volume = volume;
 		source.pitch = 1;
 	}
-	
+
+	/// <summary>
+	/// Determines whether this instance is playing a sound definition
+	/// </summary>
+	/// <returns><c>true</c> if this instance is playing the specified SoundDefinitions; otherwise, <c>false</c>.</returns>
+	/// <param name="soundDef">Sound def.</param>
 	private bool IsPlayingSoundDefinition(SoundDefinitions soundDef)
 	{
 		bool isPlaying = false;
-		foreach(ClipInfo clip in mActiveAudio)
+		foreach(ClipInfo clip in activeAudio)
 		{
 			if(clip.Definition == soundDef)
 			{
@@ -225,25 +239,4 @@ public class AudioMaster : MonoBehaviour {
 		}
 		return isPlaying;
 	}
-	/*
-	// Actualiza los AudioSources activos, y los que ya no se reproduzcan los elimina de la lista
-	private void UpdateActiveAudio() 
-	{
-		if (mToRemove == null) 
-			return;
-
-		foreach (var audioClip in mActiveAudio) 
-		{
-			if (!audioClip.Source) 
-			{
-				mToRemove.Add(audioClip);
-			}
-		}
-
-		//cleanup
-		foreach (var audioClip in mToRemove) {
-			mActiveAudio.Remove(audioClip); 
-		}
-	}
-	*/
 }

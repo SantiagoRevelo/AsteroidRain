@@ -42,7 +42,7 @@ public class Asteroid : MonoBehaviour {
 	}
 
 	public void Hit() {
-		AudioMaster.instance.Play (SoundDefinitions.TAP);
+		AudioMaster.instance.Play (SoundDefinitions.EXPLOSION);
 		ParticleManager.instance.playParticle(ParticleType.PARTICLE_DUST, transform.position);
 		HitsCount--;
 	}
@@ -62,7 +62,7 @@ public class Asteroid : MonoBehaviour {
 		//Hitting downWall player loses a live;
 		if (col.name == "DownWall") {
 			GameManager.instance.LoseLive();
-			AudioMaster.instance.Play (SoundDefinitions.TAP);
+			AudioMaster.instance.Play (SoundDefinitions.EXPLOSION);
 			ParticleManager.instance.playParticle(ParticleType.PARTICLE_DUST, transform.position);
 		}		
 		

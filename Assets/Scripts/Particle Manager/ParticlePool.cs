@@ -13,23 +13,11 @@ public class ParticlePool
 		particleAmount = amount;
 		particlePrefab = partPrefab;
 		NormalParticle = new ParticleSystem[particleAmount];
-	}
-
-	public void Start() {
 		for (int i = 0; i < particleAmount; i++)
 		{
 			//Instantiate 10 NormalParticle
 			NormalParticle[i] = GameObject.Instantiate(particlePrefab, new Vector3(0, 0, 0), new Quaternion()) as ParticleSystem;
 		}
-	}
-
-	public void Stop () {
-		for (int i = 0; i < particleAmount; i++)
-		{
-			//Instantiate 10 NormalParticle
-			GameObject.Destroy(NormalParticle[i]);
-		}
-		NormalParticle = null;
 	}
 
 	//Returns available GameObject

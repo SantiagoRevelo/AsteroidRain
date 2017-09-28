@@ -12,7 +12,6 @@ public class UIScreen : MonoBehaviour {
 
 	public delegate void Callback();
 	Callback callbackOnOpen;
-	//Callback callbackOnClose;
 
 	bool ScreenOpened;
 	bool ScreenClosed;

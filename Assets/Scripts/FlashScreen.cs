@@ -28,8 +28,6 @@ public class FlashScreen : MonoBehaviour {
 			if (flash) {
 				flashAnimator.SetTrigger ("hit");
 			}
-		} else {
-			Debug.Log ("no lives");
 		}
 	}
 }

@@ -20,15 +20,6 @@ public class GameSound
 		get { return mSound; }
 		set { mSound = value; }
 	}
-	
-	private int mCurrenTrack = -1;
-	public int CurrentTrack
-	{
-		get { return mCurrenTrack; }
-		set { mCurrenTrack = value; }
-	}
-
-	//public  GameSound(){}
 
 	public void SetMainClip()
 	{

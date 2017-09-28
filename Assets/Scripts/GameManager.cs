@@ -100,7 +100,6 @@ public class GameManager : MonoBehaviour {
 		scoreText.text = score.ToString("0000");
 		gameTimer.ResetClock (GAMEPLAY_DURATION);
 		asteroidsAliveList.Clear ();
-		ParticleManager.instance.Init ();
 		StartCoroutine (SpawnAsteroids());
 	}
 
@@ -111,8 +110,6 @@ public class GameManager : MonoBehaviour {
 		finalScore.text = score.ToString ("0000");
 
 		DestroyAllAsteroids ();
-		ParticleManager.instance.Stop ();
-
 
 		if (OnFinishgame != null)
 			OnFinishgame ();
@@ -188,7 +185,7 @@ public class GameManager : MonoBehaviour {
 	}
 
 	/// <summary>
-	/// Relocates the collision walls that destroy miss asteroids.
+	/// Relocates the collision walls
 	/// </summary>
 	void RelocateWalls() {
 		rightWall.transform.position = Vector3.zero;

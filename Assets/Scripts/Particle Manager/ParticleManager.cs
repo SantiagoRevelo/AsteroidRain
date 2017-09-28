@@ -25,17 +25,6 @@ public class ParticleManager : MonoBehaviour
 		particlePool = new ParticlePool(effects[0], particlesCount);
 	}
 
-	public void Init()
-	{
-		particlePool.Start ();
-	}
-
-	public void Stop()
-	{
-		particlePool.Stop ();
-	}
-
-
 	public void playParticle(ParticleType particleType, Vector3 particlePos)
 	{
 		ParticleSystem particleToPlay = particlePool.getAvailabeParticle((int)particleType);

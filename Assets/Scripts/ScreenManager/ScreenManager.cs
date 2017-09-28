@@ -58,8 +58,6 @@ public class ScreenManager : MonoBehaviour {
     /// </summary>
     /// <param name="guiScreen">GUI screen.</param>
 	public void ShowScreen(ScreenDefinitions definition, UIScreen.Callback theCallback= null) {
-
-		//resultCallback = theCallback;
 		UIScreen uiScreen = screens.Find (s => s.screenDefinition == definition);
 
 		if (currentGUIScreen != null && uiScreen != currentGUIScreen) {
